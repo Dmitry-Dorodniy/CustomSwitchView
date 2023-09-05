@@ -61,7 +61,7 @@ class CustomSwitchView: UIControl {
     
     public var thumbInPadding: CGFloat = 5 {
             didSet {
-                setupView()
+                layoutSubviews()
             }
         }
     
@@ -81,17 +81,11 @@ class CustomSwitchView: UIControl {
         self.subviews.forEach( { $0.removeFromSuperview() })
     }
     
-    func setupView() {
+    private func setupView() {
         clear()
         clipsToBounds = false
-        thumbViewSubLayer.backgroundColor = isOn ? thumbOnTintColor.cgColor : thumbOffTintColor.cgColor
         thumbView.backgroundColor = thumbBackgroundColor
 
-        thumbViewSubLayer.frame = CGRect(x: thumbInPadding, y: thumbInPadding,
-                                         width: thumbSize.width - thumbInPadding * 2,
-                                         height: thumbSize.height - thumbInPadding * 2)
-        thumbViewSubLayer.cornerRadius = thumbViewSubLayer.bounds.height * thumbCornerRadius
-        
         thumbView.isUserInteractionEnabled = false
         
         thumbView.layer.shadowColor = UIColor.gray.cgColor
@@ -119,6 +113,11 @@ class CustomSwitchView: UIControl {
         if !isAnimating {
             layer.cornerRadius = bounds.size.height * cornerRadius
             backgroundColor = isOn ? onTintColor : offTintColor
+            
+            thumbViewSubLayer.frame = CGRect(x: thumbInPadding, y: thumbInPadding,
+                                             width: thumbSize.width - thumbInPadding * 2,
+                                             height: thumbSize.height - thumbInPadding * 2)
+            thumbViewSubLayer.cornerRadius = thumbViewSubLayer.bounds.height * thumbCornerRadius
             thumbViewSubLayer.backgroundColor = isOn ? thumbOnTintColor.cgColor : thumbOffTintColor.cgColor
             
             //thumb managment
