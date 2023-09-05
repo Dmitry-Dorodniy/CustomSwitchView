@@ -35,7 +35,7 @@ class CustomSwitchView: UIControl {
     
     public var thumbOffTintColor: UIColor = .lightGray {
         didSet {
-            thumbViewSubView.backgroundColor = thumbOffTintColor
+            thumbViewSubLayer.backgroundColor = thumbOffTintColor.cgColor
         }
     }
     
@@ -49,7 +49,7 @@ class CustomSwitchView: UIControl {
     
     public var thumbSize: CGSize = .zero {
         didSet {
-            layoutSubviews()
+            setupView()
         }
     }
     
@@ -59,18 +59,17 @@ class CustomSwitchView: UIControl {
         }
     }
     
-    public var thumbInPadding: CGFloat = 5
-    //    {
-    //        didSet {
-    //            setupLayout()
-    //        }
-    //    }
+    public var thumbInPadding: CGFloat = 5 {
+            didSet {
+                setupView()
+            }
+        }
     
     public var isOn = false
     public var animationDuration: Double = 0.5
     
     fileprivate var thumbView = UIView(frame: .zero)
-    fileprivate var thumbViewSubView = UIView(frame: .zero)
+    fileprivate var thumbViewSubLayer = CALayer()
     
     fileprivate var onPoint: CGPoint = .zero
     fileprivate var offPoint: CGPoint = .zero
@@ -85,9 +84,13 @@ class CustomSwitchView: UIControl {
     func setupView() {
         clear()
         clipsToBounds = false
-        thumbViewSubView.backgroundColor = isOn ? thumbOnTintColor : thumbOffTintColor
+        thumbViewSubLayer.backgroundColor = isOn ? thumbOnTintColor.cgColor : thumbOffTintColor.cgColor
         thumbView.backgroundColor = thumbBackgroundColor
-        thumbViewSubView.translatesAutoresizingMaskIntoConstraints = false
+
+        thumbViewSubLayer.frame = CGRect(x: thumbInPadding, y: thumbInPadding,
+                                         width: thumbSize.width - thumbInPadding * 2,
+                                         height: thumbSize.height - thumbInPadding * 2)
+        thumbViewSubLayer.cornerRadius = thumbViewSubLayer.bounds.height * thumbCornerRadius
         
         thumbView.isUserInteractionEnabled = false
         
@@ -97,23 +100,13 @@ class CustomSwitchView: UIControl {
         thumbView.layer.shadowOffset = CGSize(width: 0.75, height: 2)
         
         addSubview(thumbView)
-        thumbView.addSubview(thumbViewSubView)
-    }
-    
-    func setupLayout() {
-        NSLayoutConstraint.activate([
-            thumbViewSubView.leftAnchor.constraint(equalTo: thumbView.leftAnchor, constant: thumbInPadding),
-            thumbViewSubView.rightAnchor.constraint(equalTo: thumbView.rightAnchor, constant: -thumbInPadding),
-            thumbViewSubView.topAnchor.constraint(equalTo: thumbView.topAnchor, constant: thumbInPadding),
-            thumbViewSubView.bottomAnchor.constraint(equalTo: thumbView.bottomAnchor, constant: -thumbInPadding)
-        ])
+        thumbView.layer.addSublayer(thumbViewSubLayer)
     }
     
     // MARK: - Lifecycle
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
-        setupLayout()
     }
     
     required init?(coder: NSCoder) {
@@ -126,7 +119,7 @@ class CustomSwitchView: UIControl {
         if !isAnimating {
             layer.cornerRadius = bounds.size.height * cornerRadius
             backgroundColor = isOn ? onTintColor : offTintColor
-            thumbViewSubView.backgroundColor = isOn ? thumbOnTintColor : thumbOffTintColor
+            thumbViewSubLayer.backgroundColor = isOn ? thumbOnTintColor.cgColor : thumbOffTintColor.cgColor
             
             //thumb managment
             let thumbSize = thumbSize != .zero ? thumbSize : CGSize(width: bounds.size.height - 2,
@@ -137,8 +130,6 @@ class CustomSwitchView: UIControl {
             offPoint = CGPoint(x: padding, y: yPosition)
             
             thumbView.frame = CGRect(origin: isOn ? onPoint : offPoint, size: thumbSize)
-            thumbViewSubView.layer.cornerRadius = thumbViewSubView.frame.height * 0.5
-            
             thumbView.layer.cornerRadius = thumbSize.height * thumbCornerRadius
         }
     }
@@ -165,7 +156,7 @@ class CustomSwitchView: UIControl {
                        animations: {
             self.thumbView.frame.origin.x = self.isOn ? self.onPoint.x : self.offPoint.x
             self.backgroundColor = self.isOn ? self.onTintColor : self.offTintColor
-            self.thumbViewSubView.backgroundColor = self.isOn ? self.thumbOnTintColor : self.thumbOffTintColor
+            self.thumbViewSubLayer.backgroundColor = self.isOn ? self.thumbOnTintColor.cgColor : self.thumbOffTintColor.cgColor
         },
                        completion: { _ in
             self.isAnimating = false

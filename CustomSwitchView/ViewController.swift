@@ -15,10 +15,11 @@ class ViewController: UIViewController {
         view.onTintColor = .systemGray4
         view.offTintColor = .systemGray4
         view.cornerRadius = 0.5
+        view.thumbCornerRadius = 0.5
         view.thumbSize = .init(width: 30, height: 30)
         view.padding = 0
+        view.thumbInPadding = 5
         view.thumbOnTintColor = .systemPink
-        view.thumbCornerRadius = 0.5
         return view
     }()
     
